@@ -1,4 +1,4 @@
 #ignore environment file
 .env
-.log
+err.log
 todo.txt
