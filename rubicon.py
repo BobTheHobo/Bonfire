@@ -50,16 +50,11 @@ async def initialSetup(ctx):
     guild = ctx.guild
     existing_start_chan = discord.utils.get(guild.channels, name = "start-rubicon-party") #checks if start-rubicon-party is already a channel
     existing_active_chan = discord.utils.get(guild.channels, name = 'active-rubicon-parties') #checks if active-rubicon-parties is already a channel
-    existing_category = discord.utils.get(guild.categories, name = "RUBICON CHANNELS") #checks if rubicon is already a category
-
-    if not existing_category:
-        print('Creating Rubicon category')
-        await guild.create_category("RUBICON CHANNELS")
-
-    rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON CHANNELS") #get rubicon category object
 
     if not existing_start_chan and not existing_active_chan: #if both channels not created, create them
         print(f'Setting up Rubicon channels')
+        await guild.create_category("RUBICON CHANNELS") #creates rubicon category
+        rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON CHANNELS") #get rubicon category object
         await guild.create_text_channel("start rubicon party", category=rcategory)
         await guild.create_text_channel("active rubicon parties", category=rcategory)
     
@@ -69,13 +64,52 @@ async def initialSetup(ctx):
 
     elif existing_start_chan: #if only start channel is created, make other one
         print(f'Setting up Rubicon active chat')
-        await guild.create_text_channel("active rubicon parties", category=rcategory)
+        curCategory = existing_start_chan.category #if the user has moved the channel into another category, create the new channel there too
+        await guild.create_text_channel("active rubicon parties", category=curCategory)
 
     elif existing_active_chan: #if only active channel is created, make other one
         print(f'Setting up Rubicon party create chat')
-        await guild.create_text_channel("start rubicon party", category=rcategory)
+        curCategory = existing_active_chan.category #if the user has moved the channel into another category, create the new channel there too
+        await guild.create_text_channel("start rubicon party", category=curCategory)
 
     await ctx.send("Rubicon setup complete") #setup complete
+
+@bot.command(name="party", help="creates a new active party. name is optional")
+async def partyCreate(ctx, *args):
+    guild = ctx.guild
+
+    partyName = ["rubicon", "party"]
+    nameLen = len(partyName)
+    name = 
+
+    if len(args) > 0:
+        nameLen = len(args)
+        name =
+
+    name = 
+        
+    existingParty = discord.utils.get(guild.channels, name = "-".join(partyName)) #checks if there is already a channel with the party name
+    i=2 #holds number of duplicate channels
+
+    if(existingParty):
+        partyName.append(f"{i}")
+        existingParty = discord.utils.get(guild.channels, name = "-".join(partyName))
+        while(existingParty):
+            partyName[nameLen+1] = i
+            existingParty = discord.utils.get(guild.channels, name = "-".join(partyName))
+            i+=1
+        name = "-".join(partyName)
+        await ctx.send(f"Party name already exists, created new channel with name: {name}")
+    else:
+        name = "-".join(partyName)
+        await ctx.send(f"{name} created!")
+
+    rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON PARTIES") #get rubicon parties category object
+    if not rcategory:
+        await guild.create_category("RUBICON PARTIES") #creates category for rubicon parties
+
+    await guild.create_text_channel(f"{("-").join(partyName)}", category=rcategory) #creates channel
+    
 
 bot.run(TOKEN)
 
