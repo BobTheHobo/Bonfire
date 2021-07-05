@@ -1,6 +1,7 @@
 # bot.py
 import os
 import random
+import string
 
 from dotenv import load_dotenv
 import discord
@@ -80,10 +81,18 @@ async def initialSetup(ctx):
 async def partyCreate(ctx, *args):
     guild = ctx.guild
 
-    partyName = ["rubicon", "party"]
+    author = ctx.message.author
+    partyName = [author.name+"s", "party"]
+    message = ""
 
     if len(args) > 0:
         partyName = list(args) #makes sure partyName is a list
+    
+    for i, name in enumerate(partyName):
+        name = name.lower() #clears capitalization
+        for char in string.punctuation: 
+            name = name.replace(char, '') #replaces all punctuation in the name in attempt to keep as close to discord's channel naming schemes as possible
+        partyName[i] = name 
 
     nameLen = len(partyName)
     pname = "-".join(partyName)
@@ -101,9 +110,10 @@ async def partyCreate(ctx, *args):
             existingParty = discord.utils.get(guild.channels, name = "-".join(partyName))
 
         pname = "-".join(partyName)
-        await ctx.send(f"Party name already exists, created new channel with name: {pname}")
+
+        message = f"Party name already exists, created new channel with name: **{pname}**"
     else:
-        await ctx.send(f"\"{pname}\" created!")
+        message = f"**{pname}** party created!"
 
     rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON PARTIES") #get rubicon parties category object
     if not rcategory:
@@ -111,7 +121,30 @@ async def partyCreate(ctx, *args):
         rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON PARTIES")
 
     await guild.create_text_channel(f"{pname}", category=rcategory) #creates channel
-    
+    channel = discord.utils.get(guild.channels, name = f"{pname}") #gets channel just created
+    chanID = channel.id
+
+    #formatting
+    message = message + f"\nhere: <#{chanID}>"
+
+    embed=discord.Embed(title="", description="", color=0x109319)
+
+    # Add author, thumbnail, fields, and footer to the embed
+    embed.set_author(name=pname, icon_url=ctx.author.avatar_url)
+
+    #embed.set_thumbnail(url=ctx.author.avatar_url)
+ 
+    embed.add_field(name="Members", value="WIP", inline=True)
+    embed.add_field(name="Creator", value=ctx.author.display_name, inline=True)
+
+    embed.set_footer(text="⚔️ to join, ☠️ to delete party")
+
+    await ctx.send(message)
+    msg = await ctx.send(embed=embed)
+    await msg.add_reaction("⚔️")
+    await msg.add_reaction("☠️")
+
+
 @bot.command(name="delete-parties", help="deletes all active parties ONLY in RUBICON PARTIES category and the category itself")
 @commands.has_permissions(administrator=True)
 async def deleteParties(ctx):
