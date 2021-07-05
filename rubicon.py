@@ -43,6 +43,8 @@ async def createChanel(ctx, name):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CheckFailure):
         await ctx.send('You do not have the correct role for this command.')
+    else:
+        print(error)
 
 @bot.command(name='setup-rubicon', help=f"sets up channels for rubicon raids (requires admin). \n (Default setup): [[setup-rubicon \n (Setup with already precreated channels, replace startRaidChannelName and activeRaidChannelName): [[setup-rubicon \"startRaidChannelName\" \"activeRaidChannelName\"")
 @commands.has_permissions(administrator=True)
@@ -79,37 +81,47 @@ async def partyCreate(ctx, *args):
     guild = ctx.guild
 
     partyName = ["rubicon", "party"]
-    nameLen = len(partyName)
-    name = 
 
     if len(args) > 0:
-        nameLen = len(args)
-        name =
+        partyName = list(args) #makes sure partyName is a list
 
-    name = 
+    nameLen = len(partyName)
+    pname = "-".join(partyName)
         
     existingParty = discord.utils.get(guild.channels, name = "-".join(partyName)) #checks if there is already a channel with the party name
-    i=2 #holds number of duplicate channels
+    i=1 #holds number of duplicate channels
 
     if(existingParty):
         partyName.append(f"{i}")
         existingParty = discord.utils.get(guild.channels, name = "-".join(partyName))
-        while(existingParty):
-            partyName[nameLen+1] = i
-            existingParty = discord.utils.get(guild.channels, name = "-".join(partyName))
+
+        while existingParty: #if there are existing party names, keep on adding numbers until an open name is found
             i+=1
-        name = "-".join(partyName)
-        await ctx.send(f"Party name already exists, created new channel with name: {name}")
+            partyName[nameLen] = str(i)
+            existingParty = discord.utils.get(guild.channels, name = "-".join(partyName))
+
+        pname = "-".join(partyName)
+        await ctx.send(f"Party name already exists, created new channel with name: {pname}")
     else:
-        name = "-".join(partyName)
-        await ctx.send(f"{name} created!")
+        await ctx.send(f"\"{pname}\" created!")
 
     rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON PARTIES") #get rubicon parties category object
     if not rcategory:
         await guild.create_category("RUBICON PARTIES") #creates category for rubicon parties
+        rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON PARTIES")
 
-    await guild.create_text_channel(f"{("-").join(partyName)}", category=rcategory) #creates channel
+    await guild.create_text_channel(f"{pname}", category=rcategory) #creates channel
     
+@bot.command(name="delete-parties", help="deletes all active parties ONLY in RUBICON PARTIES category and the category itself")
+@commands.has_permissions(administrator=True)
+async def deleteParties(ctx):
+    guild = ctx.guild
+    category = discord.utils.get(guild.categories, name = "RUBICON PARTIES") #gets category name
+    for channel in category.channels:
+        await channel.delete()
+    
+    await category.delete()
+    await ctx.send("Deleted RUBICON PARTIES category and all channels under it")
 
 bot.run(TOKEN)
 
