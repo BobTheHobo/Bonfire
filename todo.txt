@@ -1,0 +1,26 @@
+1. create new channels [done]
+    - or designate already made channels for it [not implemented, too hard]
+	- let's user know if channel names are already taken [done]
+
+2. add raid command
+	- ui
+	- Sends message "name party created! \n in: #channel-name"
+	- embed (party title, current members, creator, instructions for what reaction to use, time and date
+	- add reactions (👤 ; ❌)
+
+3. show in active raids channel
+	- limit editing access of channel to bot and admins only
+		- also limit closing party to admins
+	- copy same embed from above into channel
+
+4. create new party channel
+	- make sure it's private, only visible to those that accepted request
+	- welcome message for creating channel
+	- party embed cheat sheet
+		- creator, ready, leave, members, maybe add time limit feature?, go
+	- welcome specific member
+	- ready
+	- leave, 
+	- members, 
+	- go
+	- maybe add time limit feature

@@ -48,27 +48,34 @@ async def on_command_error(ctx, error):
 @commands.has_permissions(administrator=True)
 async def initialSetup(ctx):
     guild = ctx.guild
-    existing_start_chan = discord.utils.get(guild.channels, name = "start-rubicon-party") 
-    existing_active_chan = discord.utils.get(guild.channels, name = 'active-rubicon-parties')
-    print(existing_active_chan)
-    if not existing_start_chan and not existing_active_chan:
+    existing_start_chan = discord.utils.get(guild.channels, name = "start-rubicon-party") #checks if start-rubicon-party is already a channel
+    existing_active_chan = discord.utils.get(guild.channels, name = 'active-rubicon-parties') #checks if active-rubicon-parties is already a channel
+    existing_category = discord.utils.get(guild.categories, name = "RUBICON CHANNELS") #checks if rubicon is already a category
+
+    if not existing_category:
+        print('Creating Rubicon category')
+        await guild.create_category("RUBICON CHANNELS")
+
+    rcategory = discord.utils.get(ctx.guild.categories, name="RUBICON CHANNELS") #get rubicon category object
+
+    if not existing_start_chan and not existing_active_chan: #if both channels not created, create them
         print(f'Setting up Rubicon channels')
-        await guild.create_text_channel("start rubicon party")
-        await guild.create_text_channel("active rubicon parties")
+        await guild.create_text_channel("start rubicon party", category=rcategory)
+        await guild.create_text_channel("active rubicon parties", category=rcategory)
     
-    elif existing_start_chan and existing_active_chan:
+    elif existing_start_chan and existing_active_chan: #if both channels already created, don't
         await ctx.send("Rubicon setup already complete. If you'd like to reset it, please delete any current channels named \"start-rubicon-party\" or \"active-rubicon-parties\" and run this command again")
         return
 
-    elif existing_start_chan:
+    elif existing_start_chan: #if only start channel is created, make other one
         print(f'Setting up Rubicon active chat')
-        await guild.create_text_channel("active rubicon parties")
+        await guild.create_text_channel("active rubicon parties", category=rcategory)
 
-    elif existing_active_chan:
+    elif existing_active_chan: #if only active channel is created, make other one
         print(f'Setting up Rubicon party create chat')
-        await guild.create_text_channel("start rubicon party")
+        await guild.create_text_channel("start rubicon party", category=rcategory)
 
-    await ctx.send("Rubicon setup complete")
+    await ctx.send("Rubicon setup complete") #setup complete
 
 bot.run(TOKEN)
 
