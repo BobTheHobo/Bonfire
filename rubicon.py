@@ -6,6 +6,7 @@ import string
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+import datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -132,12 +133,15 @@ async def partyCreate(ctx, *args):
     # Add author, thumbnail, fields, and footer to the embed
     embed.set_author(name=pname, icon_url=ctx.author.avatar_url)
 
-    #embed.set_thumbnail(url=ctx.author.avatar_url)
+    embed.set_thumbnail(url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr36wnkIue62uS_ScvqQaYc0e3VAR-IJrVPA&usqp=CAU")
  
     embed.add_field(name="Members", value="WIP", inline=True)
     embed.add_field(name="Creator", value=ctx.author.display_name, inline=True)
 
-    embed.set_footer(text="⚔️ to join, ☠️ to delete party")
+    embed.timestamp = datetime.datetime.utcnow()
+
+
+    embed.set_footer(text="⚔️ to join, ☠️ to delete party \u200b")
 
     await ctx.send(message)
     msg = await ctx.send(embed=embed)
@@ -155,6 +159,24 @@ async def deleteParties(ctx):
     
     await category.delete()
     await ctx.send("Deleted RUBICON PARTIES category and all channels under it")
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    emoji = reaction.emoji
+
+    if user.bot:
+        return
+
+    if emoji == "⚔️":
+        print("sword")
+        print(reaction.message.id)
+        #if(reaction.message.id == ):
+
+    elif emoji == "☠️":
+        print("death")
+    else:
+        return
+
 
 bot.run(TOKEN)
 
