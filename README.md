@@ -1,2 +1,3 @@
 # Rubicon
-A discord bot for a cool dude
+A discord bot that makes it easy to coordinate raids and parties.
+Still a WIP
